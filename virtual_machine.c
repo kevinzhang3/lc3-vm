@@ -5,7 +5,7 @@
 #include <conio.h> // _kbhit
 
 #define MEMORY_MAX (1 << 16)
-uint16_t memory[MEMORY_MAX];
+uint16_t memory[MEMORY_MAX]; // memory array
 
 /* registers for the LC-3 */
 enum
@@ -25,6 +25,8 @@ enum
     R_COND, // condi codes
     R_COUNT
 };
+// store regs in array
+uint16_t reg[R_COUNT];
 
 /* the 16 opcodes for LC-3 */
 enum
