@@ -66,14 +66,15 @@ DWORD fdwMode, fdwOldMode;
 void disable_input_buffering()
 {
     hStdin = GetStdHandle(STD_INPUT_HANDLE);
-    GetConsoleMode(hStdin, &fdwOldMode);     /* save old mode */
-    fdwMode = fdwOldMode ^ ENABLE_ECHO_INPUT /* no input echo */
-              ^ ENABLE_LINE_INPUT;           /* return when one or
-                                                more characters are available */
-    SetConsoleMode(hStdin, fdwMode);         /* set new mode */
-    FlushConsoleInputBuffer(hStdin);         /* clear buffer */
+    GetConsoleMode(hStdin, &fdwOldMode);     // save old mode
+    fdwMode = fdwOldMode ^ ENABLE_ECHO_INPUT // no input echo
+              ^ ENABLE_LINE_INPUT;           // return when one or more characters are available
+
+    SetConsoleMode(hStdin, fdwMode); // set new mode
+    FlushConsoleInputBuffer(hStdin); // clear buffer
 }
 
+/* restore terminal settings */
 void restore_input_buffering()
 {
     SetConsoleMode(hStdin, fdwOldMode);
@@ -82,4 +83,36 @@ void restore_input_buffering()
 uint16_t check_key()
 {
     return WaitForSingleObject(hStdin, 1000) == WAIT_OBJECT_0 && _kbhit();
+}
+
+/* if an interrupt occurs, restore terminal settings */
+void handle_interrupt(int signal)
+{
+    restore_input_buffering();
+    printf("\n");
+    exit(-2);
+}
+
+/* simulate processing instructions in main loop */
+int main(int argc, const char *argv[])
+{
+
+    /* handles command line input */
+    if (argc < 2)
+    {
+        /* show usage string */
+        printf("lc3 [image-file1] ...\n");
+        exit(2);
+    }
+    for (int j = 1; j < argc; ++j)
+    {
+        if (!read_image(argv[j]))
+        {
+            printf("failed to load image: %s\n", argv[j]);
+            exit(1);
+        }
+    }
+    /* setup */
+    signal(SIGINT, handle_interrupt);
+    disable_input_buffering();
 }
