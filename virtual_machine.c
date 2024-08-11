@@ -5,7 +5,7 @@
 #include <conio.h> // _kbhit
 
 #define MEMORY_MAX (1 << 16)
-uint16_t memory[MEMORY_MAX]; // memory array
+uint16_t memory[MEMORY_MAX]; // memory array 16-bit sizes because LC-3 uses 16-bit sized instructions
 
 /* registers for the LC-3 */
 enum
@@ -115,4 +115,20 @@ int main(int argc, const char *argv[])
     /* setup */
     signal(SIGINT, handle_interrupt);
     disable_input_buffering();
+
+    /* init condition flags and PC starting position */
+    reg[R_COND] = FL_ZRO;
+    enum
+    {
+        PC_START = 0x3000
+    };
+    reg[R_PC] = PC_START;
+
+    int running = 1;
+    while (running)
+    {
+        /* instruction fetch from memory and store in instr, then increment PC (each address points to a 16 bit word because LC-3 uses word addressing) */
+        uint16_t instr = mem_read(reg[R_PC]++);
+        uint16_t op = instr >> 12; // extract opcode (bits 15-12)
+    }
 }
