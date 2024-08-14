@@ -47,7 +47,7 @@ enum
     OP_JMP,    // jump
     OP_RES,    // reserved
     OP_LEA,    // load effective address: imm mode
-    OP_TRAP    // changes PC to address of OS service routine
+    OP_TRAP    // changes the PC to the address of OS service routine
 };
 
 /* LC-3 has 3 condition flags that store the result of the previous operation */
@@ -130,5 +130,58 @@ int main(int argc, const char *argv[])
         /* instruction fetch from memory and store in instr, then increment PC (each address points to a 16 bit word because LC-3 uses word addressing) */
         uint16_t instr = mem_read(reg[R_PC]++);
         uint16_t op = instr >> 12; // extract opcode (bits 15-12)
+
+        switch (op)
+        {
+        case OP_ADD:
+            // add
+            break;
+        case OP_AND:
+            // and
+            break;
+        case OP_NOT:
+            // not
+            break;
+        case OP_BR:
+            // branch
+            break;
+        case OP_JMP:
+            // jump
+            break;
+        case OP_JSR:
+            // jump reg
+            break;
+        case OP_LD:
+            // load pc-rel
+            break;
+        case OP_LDI:
+            // load imm
+            break;
+        case OP_LDR:
+            // load reg
+            break;
+        case OP_LEA:
+            // load effective address
+            break;
+        case OP_ST:
+            // store pc-rel
+            break;
+        case OP_STI:
+            // store imm
+            break;
+        case OP_STR:
+            // store reg
+            break;
+        case OP_TRAP:
+            // trap
+            break;
+        case OP_RES:
+            // res
+        case OP_RTI:
+            // return from interrupt
+        default:
+            // invalid op
+            break;
+        }
     }
 }
