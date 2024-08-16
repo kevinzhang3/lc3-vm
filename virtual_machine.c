@@ -93,6 +93,16 @@ void handle_interrupt(int signal)
     exit(-2);
 }
 
+/* sign extend values to be 16 bits 2's complement, fill 1's for -ve 0's for +ve  */
+uint16_t sign_extend(uint16_t x, int bit_count)
+{
+    if ((x >> (bit_count - 1)) & 1)
+    {
+        x |= (0xFFFF << bit_count);
+    }
+    return x;
+}
+
 /* simulate processing instructions in main loop */
 int main(int argc, const char *argv[])
 {
