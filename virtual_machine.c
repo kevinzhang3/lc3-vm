@@ -161,54 +161,76 @@ int main(int argc, const char *argv[])
         switch (op)
         {
         case OP_ADD:
-            // add
-            break;
-        case OP_AND:
-            // and
-            break;
-        case OP_NOT:
-            // not
-            break;
-        case OP_BR:
-            // branch
-            break;
-        case OP_JMP:
-            // jump
-            break;
-        case OP_JSR:
-            // jump reg
-            break;
-        case OP_LD:
-            // load pc-rel
-            break;
-        case OP_LDI:
-            // load imm
-            break;
-        case OP_LDR:
-            // load reg
-            break;
-        case OP_LEA:
-            // load effective address
-            break;
-        case OP_ST:
-            // store pc-rel
-            break;
-        case OP_STI:
-            // store imm
-            break;
-        case OP_STR:
-            // store reg
-            break;
-        case OP_TRAP:
-            // trap
-            break;
-        case OP_RES:
-            // res
-        case OP_RTI:
-            // return from interrupt
-        default:
-            // invalid op
-            break;
+            /* add instruction */
+            {
+                /* destination register */
+                uint16_t r0 = (instr >> 9) & 0x7;
+                /* first operand */
+                uint16_t r1 = (instr >> 6) & 0x7;
+                /* whether we are in immediate mode */
+                uint16_t imm_flag = (instr >> 5) & 0x1;
+
+                /* if an immediate is used, sign extend the value and add*/
+                if (imm_flag)
+                {
+                    uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+                    reg[r0] = reg[r1] + imm5;
+                }
+                /* otherwise just add the registers and store */
+                else
+                {
+                    uint16_t r2 = instr & 0x7;
+                    reg[r0] = reg[r1] + reg[r2];
+                }
+                /* update condition flags */
+                update_flags(r0);
+                break;
+            case OP_AND:
+                // and
+                break;
+            case OP_NOT:
+                // not
+                break;
+            case OP_BR:
+                // branch
+                break;
+            case OP_JMP:
+                // jump
+                break;
+            case OP_JSR:
+                // jump reg
+                break;
+            case OP_LD:
+                // load pc-rel
+                break;
+            case OP_LDI:
+                // load imm
+                break;
+            case OP_LDR:
+                // load reg
+                break;
+            case OP_LEA:
+                // load effective address
+                break;
+            case OP_ST:
+                // store pc-rel
+                break;
+            case OP_STI:
+                // store imm
+                break;
+            case OP_STR:
+                // store reg
+                break;
+            case OP_TRAP:
+                // trap
+                break;
+            case OP_RES:
+                // res
+            case OP_RTI:
+                // return from interrupt
+            default:
+                // invalid op
+                break;
+            }
         }
     }
-}
