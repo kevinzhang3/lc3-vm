@@ -25,6 +25,7 @@ enum
     R_COND, // condi codes
     R_COUNT
 };
+
 // store regs in array
 uint16_t reg[R_COUNT];
 
@@ -163,11 +164,11 @@ int main(int argc, const char *argv[])
         case OP_ADD:
             /* add instruction */
             {
-                /* destination register */
+                /* DR */
                 uint16_t r0 = (instr >> 9) & 0x7;
-                /* first operand */
+                /* SR1 */
                 uint16_t r1 = (instr >> 6) & 0x7;
-                /* whether we are in immediate mode */
+                /* whether we are in immediate mode (if the 6th bit is 1) */
                 uint16_t imm_flag = (instr >> 5) & 0x1;
 
                 /* if an immediate is used, sign extend the value and add*/
@@ -186,7 +187,25 @@ int main(int argc, const char *argv[])
                 update_flags(r0);
                 break;
             case OP_AND:
-                // and
+                /* Bit-wise Logical AND */
+                {
+                    uint16_t r0 = (instr >> 9) & 0x7;
+                    uint16_t r1 = (instr >> 6) & 0x7;
+                    uint16_t imm_flag = (instr >> 5) & 0x1;
+
+                    if (imm_flag)
+                    {
+                        uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+                        reg[r0] = reg[r1] & imm5;
+                    }
+                    else
+                    {
+                        uint16_t r2 = instr & 0x7;
+                        reg[r0] = reg[r1] & reg[r2];
+                    }
+                    update_flags(r0);
+                    break;
+                }
                 break;
             case OP_NOT:
                 // not
