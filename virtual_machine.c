@@ -111,7 +111,7 @@ void update_flags(uint16_t r)
     {
         reg[R_COND] = FL_ZRO;
     }
-    else if (reg[r] >> 15) // a 1 in the left-most bit indicates negative
+    else if (reg[r] >> 15)
     {
         reg[R_COND] = FL_NEG;
     }
@@ -161,105 +161,110 @@ int main(int argc, const char *argv[])
 
         switch (op)
         {
+        /* add */
         case OP_ADD:
-            /* add instruction */
+        {
+            /* DR */
+            uint16_t r0 = (instr >> 9) & 0x7;
+            /* SR1 */
+            uint16_t r1 = (instr >> 6) & 0x7;
+            /* whether we are in immediate mode (if the 6th bit is 1) */
+            uint16_t imm_flag = (instr >> 5) & 0x1;
+
+            /* if an immediate is used, sign extend the value and add*/
+            if (imm_flag)
             {
-                /* DR */
-                uint16_t r0 = (instr >> 9) & 0x7;
-                /* SR1 */
-                uint16_t r1 = (instr >> 6) & 0x7;
-                /* whether we are in immediate mode (if the 6th bit is 1) */
-                uint16_t imm_flag = (instr >> 5) & 0x1;
-
-                /* if an immediate is used, sign extend the value and add*/
-                if (imm_flag)
-                {
-                    uint16_t imm5 = sign_extend(instr & 0x1F, 5);
-                    reg[r0] = reg[r1] + imm5;
-                }
-                /* otherwise just add the registers and store */
-                else
-                {
-                    uint16_t r2 = instr & 0x7;
-                    reg[r0] = reg[r1] + reg[r2];
-                }
-                /* update condition flags */
-                update_flags(r0);
-                break;
-            case OP_AND:
-                /* Bit-wise Logical AND */
-                {
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    uint16_t r1 = (instr >> 6) & 0x7;
-                    uint16_t imm_flag = (instr >> 5) & 0x1;
-
-                    if (imm_flag)
-                    {
-                        uint16_t imm5 = sign_extend(instr & 0x1F, 5);
-                        reg[r0] = reg[r1] & imm5;
-                    }
-                    else
-                    {
-                        uint16_t r2 = instr & 0x7;
-                        reg[r0] = reg[r1] & reg[r2];
-                    }
-                    update_flags(r0);
-                    break;
-                }
-                break;
-            case OP_NOT:
-                // not
-                break;
-            case OP_BR:
-                // branch
-                break;
-            case OP_JMP:
-                // jump
-                break;
-            case OP_JSR:
-                // jump reg
-                break;
-            case OP_LD:
-                // load pc-rel
-                break;
-            case OP_LDI:
-                /*load indirect */
-
-                {
-                    /* destination register (DR) */
-                    uint16_t r0 = (instr >> 9) & 0x7;
-                    /* PCoffset 9, sign extend to 16 bits*/
-                    uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-                    /* add pc_offset to the current PC, look at that memory location to get the final address */
-                    reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
-                    update_flags(r0);
-                }
-                break;
-            case OP_LDR:
-                // load reg
-                break;
-            case OP_LEA:
-                // load effective address
-                break;
-            case OP_ST:
-                // store pc-rel
-                break;
-            case OP_STI:
-                // store ind
-                break;
-            case OP_STR:
-                // store reg
-                break;
-            case OP_TRAP:
-                // trap
-                break;
-            case OP_RES:
-                // res
-            case OP_RTI:
-                // return from interrupt
-            default:
-                // invalid op
-                break;
+                uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+                reg[r0] = reg[r1] + imm5;
             }
+            /* otherwise just add the registers and store */
+            else
+            {
+                uint16_t r2 = instr & 0x7;
+                reg[r0] = reg[r1] + reg[r2];
+            }
+            /* update condition flags */
+            update_flags(r0);
+            break;
+        }
+        case OP_AND:
+        {
+            /* Bit-wise Logical AND */
+            uint16_t r0 = (instr >> 9) & 0x7;
+            uint16_t r1 = (instr >> 6) & 0x7;
+            uint16_t imm_flag = (instr >> 5) & 0x1;
+
+            if (imm_flag)
+            {
+                uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+                reg[r0] = reg[r1] & imm5;
+            }
+            else
+            {
+                uint16_t r2 = instr & 0x7;
+                reg[r0] = reg[r1] & reg[r2];
+            }
+            update_flags(r0);
+            break;
+        }
+        case OP_NOT:
+        {
+            /* bitwise complement */
+            uint16_t r0 = (instr >> 9) & 0x7;
+            uint16_t r1 = (instr >> 6) & 0x7;
+
+            reg[r0] = ~reg[r1];
+            update_flags(r0);
+            break;
+        }
+        case OP_BR:
+            // branch
+            break;
+        case OP_JMP:
+            // jump
+            break;
+        case OP_JSR:
+            // jump reg
+            break;
+        case OP_LD:
+            // load pc-rel
+            break;
+        case OP_LDI:
+        {
+            /* destination register (DR) */
+            uint16_t r0 = (instr >> 9) & 0x7;
+            /* PCoffset 9, sign extend to 16 bits*/
+            uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+            /* add pc_offset to the current PC, look at that memory location to get the final address */
+            reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+            update_flags(r0);
+            break;
+        }
+        case OP_LDR:
+            // load reg
+            break;
+        case OP_LEA:
+            // load effective address
+            break;
+        case OP_ST:
+            // store pc-rel
+            break;
+        case OP_STI:
+            // store ind
+            break;
+        case OP_STR:
+            // store reg
+            break;
+        case OP_TRAP:
+            // trap
+            break;
+        case OP_RES:
+            // res
+        case OP_RTI:
+            // return from interrupt
+        default:
+            // invalid op
+            break;
         }
     }
+}
