@@ -208,15 +208,15 @@ int main(int argc, const char *argv[])
             break;
         }
         case OP_NOT:
-        {
             /* bitwise complement */
-            uint16_t r0 = (instr >> 9) & 0x7;
-            uint16_t r1 = (instr >> 6) & 0x7;
+            {
+                uint16_t r0 = (instr >> 9) & 0x7;
+                uint16_t r1 = (instr >> 6) & 0x7;
 
-            reg[r0] = ~reg[r1];
-            update_flags(r0);
-            break;
-        }
+                reg[r0] = ~reg[r1];
+                update_flags(r0);
+                break;
+            }
         case OP_BR:
             // branch
             break;
@@ -230,19 +230,27 @@ int main(int argc, const char *argv[])
             // load pc-rel
             break;
         case OP_LDI:
-        {
-            /* destination register (DR) */
-            uint16_t r0 = (instr >> 9) & 0x7;
-            /* PCoffset 9, sign extend to 16 bits*/
-            uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
-            /* add pc_offset to the current PC, look at that memory location to get the final address */
-            reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
-            update_flags(r0);
-            break;
-        }
+            /* load indirect */
+            {
+                /* destination register (DR) */
+                uint16_t r0 = (instr >> 9) & 0x7;
+                /* PCoffset9, sign extend to 16 bits*/
+                uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+                /* add pc_offset to the current PC, look at that memory location to get the final address */
+                reg[r0] = mem_read(mem_read(reg[R_PC] + pc_offset));
+                update_flags(r0);
+                break;
+            }
         case OP_LDR:
-            // load reg
-            break;
+            /* load base+offset */
+            {
+                uint16_t r0 = (instr >> 9) & 0x7;
+                uint16_t r1 = (instr >> 6) & 0x7;
+                uint16_t offset = sign_extend(instr & 0x3F, 6);
+                reg[r0] = mem_read(mem_read(reg[r1] + offset));
+                update_flags(r0);
+                break;
+            }
         case OP_LEA:
             // load effective address
             break;
