@@ -267,9 +267,17 @@ int main(int argc, const char *argv[])
             // trap
             break;
         case OP_RES:
-            // res
+            // res (not used)
+            {
+                abort();
+                break;
+            }
         case OP_RTI:
-            // return from interrupt
+            // return from interrupt (not used)
+            {
+                abort();
+                break;
+            }
         default:
             // invalid op
             break;
