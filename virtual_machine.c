@@ -264,8 +264,13 @@ int main(int argc, const char *argv[])
                 break;
             }
         case OP_LEA:
-            // load effective address
+        {
+            uint16_t r0 = (instr >> 9) & 0x7;
+            uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+            reg[r0] = reg[R_PC] + pc_offset;
+            update_flags(r0);
             break;
+        }
         case OP_ST:
             // store pc-rel
             break;
