@@ -26,6 +26,17 @@ enum
     R_COUNT
 };
 
+/* trap codes */
+enum
+{
+    TRAP_GETC = 0x20,  /* get char from keyboard, not echoed */
+    TRAP_OUT = 0x21,   /* output char */
+    TRAP_PUTS = 0x22,  /* output  word string */
+    TRAP_IN = 0x23,    /* get char from keyboard, echoed on terminal */
+    TRAP_PUTSP = 0x24, /* output a byte string */
+    TRAP_HALT = 0x25   /* halt program */
+};
+
 // store regs in array
 uint16_t reg[R_COUNT];
 
