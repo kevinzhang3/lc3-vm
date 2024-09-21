@@ -7,6 +7,13 @@
 #define MEMORY_MAX (1 << 16)
 uint16_t memory[MEMORY_MAX]; // memory array 16-bit sizes because LC-3 uses 16-bit sized instructions
 
+/* mem mapped regs */
+enum
+{
+    MR_KBSR = 0xFE00, /* keyboard status */
+    MR_KBDR = 0xFE02  /* keyboard data */
+};
+
 /* registers for the LC-3 */
 enum
 {
@@ -113,6 +120,12 @@ uint16_t sign_extend(uint16_t x, int bit_count)
         x |= (0xFFFF << bit_count);
     }
     return x;
+}
+
+/* swap endianness */
+uint16_t swap16(uint16_t x)
+{
+    return (x << 8) | (x >> 8);
 }
 
 /* updating condition flags any time a register is written */
