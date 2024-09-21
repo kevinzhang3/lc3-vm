@@ -327,7 +327,63 @@ int main(int argc, const char *argv[])
         case OP_TRAP:
             switch (instr & 0xFF)
             {
-                // traps
+            case TRAP_GETC:
+            {
+                /* read an ASCII char */
+                reg[R_R0] = (uint16_t)getchar();
+                update_flags(R_R0);
+                break;
+            }
+            case TRAP_OUT:
+            {
+                putc((char)reg[R_R0], stdout);
+                fflush(stdout);
+                break;
+            }
+            case TRAP_IN:
+            {
+                printf("Enter a character: ");
+                char c = getchar();
+                putc(c, stdout);
+                fflush(stdout);
+                reg[R_R0] = (uint16_t)c;
+                update_flags(R_R0);
+                break;
+            }
+            case TRAP_PUTS:
+            {
+                /* prints value */
+                uint16_t *c = memory + reg[R_R0];
+                while (*c)
+                {
+                    putc((char)*c, stdout);
+                    ++c;
+                }
+                fflush(stdout);
+                break;
+            }
+            case TRAP_PUTSP:
+            {
+                uint16_t *c = memory + reg[R_R0];
+                while (*c)
+                {
+                    char char1 = (*c) & 0xFF;
+                    putc(char1, stdout);
+                    char char2 = (*c) >> 8;
+                    if (char2)
+                        putc(char2, stdout);
+                    ++c;
+                }
+                fflush(stdout);
+                break;
+            }
+            case TRAP_HALT:
+            {
+                puts("HALT");
+                fflush(stdout);
+                running = 0;
+                break;
+            }
             }
             break;
         case OP_RES:
