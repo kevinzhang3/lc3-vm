@@ -247,11 +247,31 @@ int main(int argc, const char *argv[])
                 break;
             }
         case OP_JSR:
-            // jump reg
-            break;
+            /* jump reg */
+            {
+                uint16_t long_flag = (instr >> 11) & 1;
+                reg[R_R7] = reg[R_PC];
+                if (long_flag)
+                {
+                    uint16_t long_pc_offset = sign_extend(instr & 0x7FF, 11);
+                    reg[R_PC] += long_pc_offset; /* JSR */
+                }
+                else
+                {
+                    uint16_t r1 = (instr >> 6) & 0x7;
+                    reg[R_PC] = reg[r1]; /* JSRR */
+                }
+                break;
+            }
         case OP_LD:
-            // load pc-rel
-            break;
+            /* load */
+            {
+                uint16_t r0 = (instr >> 9) & 0x7;
+                uint16_t pc_offset = sign_extend(instr & 0x1FF, 9);
+                reg[r0] = mem_read(reg[R_PC] + pc_offset);
+                update_flags(r0);
+                break;
+            }
         case OP_LDI:
             /* load indirect */
             {
@@ -305,7 +325,10 @@ int main(int argc, const char *argv[])
             break;
         }
         case OP_TRAP:
-            // trap
+            switch (instr & 0xFF)
+            {
+                // traps
+            }
             break;
         case OP_RES:
             // res (not used)
